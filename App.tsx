@@ -1,45 +1,89 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+  createNativeStackNavigator,
+  type NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
+import { Button, I18nManager, StatusBar, Text, View } from 'react-native';
+import RNRestart from 'react-native-restart';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+const Stack = createNativeStackNavigator();
+
+function HomeScreen() {
+  function toggle() {
+    I18nManager.forceRTL(!I18nManager.isRTL);
+    I18nManager.allowRTL(true);
+
+    RNRestart.restart();
+  }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
+    <View>
+      <Text>Home screen</Text>
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
+      <Button
+        title={I18nManager.isRTL ? 'Force LTR' : 'Force RTL'}
+        onPress={toggle}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+const notWorkingOptions: NativeStackNavigationOptions = {
+  headerTitle: () => (
+    <View>
+      <Text>Elo elo</Text>
+    </View>
+  ),
+  headerRight: () => (
+    <View>
+      <Text>Right</Text>
+    </View>
+  ),
+  headerTitleAlign: 'center',
+};
+
+const workingOptionsWithStaticTitle: NativeStackNavigationOptions = {
+  headerTitle: 'Elo elo',
+  headerRight: () => (
+    <View>
+      <Text>Right</Text>
+    </View>
+  ),
+  headerTitleAlign: 'center',
+};
+
+const workaroundOptions: NativeStackNavigationOptions = {
+  headerTitle: () => (
+    <View style={{ flex: 1, alignItems: 'center' }}>
+      <Text>Header title</Text>
+    </View>
+  ),
+  headerRight: () => (
+    <View>
+      <Text>Right</Text>
+    </View>
+  ),
+};
+
+function Navigation() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={notWorkingOptions}>
+        <Stack.Screen name="Home" component={HomeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+function App() {
+  return (
+    <SafeAreaProvider>
+      <StatusBar />
+
+      <Navigation />
+    </SafeAreaProvider>
+  );
+}
 
 export default App;
